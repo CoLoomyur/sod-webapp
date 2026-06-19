@@ -17,8 +17,6 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
         }
         .neon-glow {
             position: fixed;
@@ -39,6 +37,13 @@
             display: flex;
             flex-direction: column;
         }
+        .screen {
+            display: none;
+            width: 100%;
+        }
+        .screen.active {
+            display: block;
+        }
         h2 {
             font-size: 24px;
             font-weight: bold;
@@ -50,7 +55,7 @@
             font-size: 13px;
             color: #6c7278;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         label {
             font-size: 11px;
@@ -60,6 +65,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             padding-left: 4px;
+            display: block;
         }
         .input-group {
             position: relative;
@@ -71,16 +77,27 @@
             align-items: center;
             padding: 16px;
             box-sizing: border-box;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
-        .input-group:focus-within {
-            border-color: #333842;
+        .input-group.error-border {
+            border-color: #ff0055 !important;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.15);
+        }
+        .error-message {
+            color: #ff0055;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            padding-left: 4px;
+            display: none;
         }
         .input-group span.field-label {
             font-size: 16px;
             color: #ffffff;
             flex: 1;
         }
-        .input-group input {
+        .input-group input, .input-group textarea {
             background: transparent;
             border: none;
             color: #ffffff;
@@ -90,16 +107,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-        .input-group input::placeholder {
+        .input-group input::placeholder, .input-group textarea::placeholder {
             color: #4a4f54;
         }
-        /* Стилизация выбора даты */
-        .input-group input[type="date"] {
-            text-align: right;
-            color: #ffffff;
-            cursor: pointer;
+        .input-group textarea {
+            resize: none;
+            height: 80px;
+            font-family: inherit;
         }
-        /* Для кастомного отображения текста справа */
         .input-group .val-right {
             text-align: right;
             color: #ffffff;
@@ -114,7 +129,7 @@
             gap: 12px;
             margin-bottom: 24px;
         }
-        .mode-btn {
+        .mode-btn, .gender-btn, .social-toggle-btn {
             flex: 1;
             background-color: #121417;
             border: 1px solid #1c1f24;
@@ -131,77 +146,27 @@
             justify-content: center;
             gap: 8px;
         }
-        .mode-btn .circle {
+        .mode-btn .circle, .gender-btn .circle {
             width: 16px;
             height: 16px;
             border: 2px solid #4a4f54;
             border-radius: 50%;
             display: inline-block;
             box-sizing: border-box;
-            position: relative;
         }
-        /* Активные состояния для SEX (Розовый неон) */
-        .mode-btn#sex-btn.active {
-            border-color: #ff0055;
-            color: #ff0055;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
-            background-color: rgba(255, 0, 85, 0.03);
-        }
-        .mode-btn#sex-btn.active .circle {
-            border-color: #ff0055;
-            background-color: #ff0055;
-        }
-        /* Активные состояния для DATE (Синий неон) */
-        .mode-btn#date-btn.active {
-            border-color: #0088ff;
-            color: #0088ff;
-            box-shadow: 0 0 15px rgba(0, 136, 255, 0.2);
-            background-color: rgba(0, 136, 255, 0.03);
-        }
-        .mode-btn#date-btn.active .circle {
-            border-color: #0088ff;
-            background-color: #0088ff;
-        }
-        /* Кнопки выбора Пола */
-        .gender-btn {
-            flex: 1;
-            background-color: #121417;
-            border: 1px solid #1c1f24;
-            border-radius: 14px;
-            padding: 16px;
-            color: #ffffff;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .gender-btn .checkbox-circle {
-            width: 18px;
-            height: 18px;
-            border: 1px solid #4a4f54;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gender-btn.active {
+        .mode-btn#sex-btn.active { border-color: #ff0055; color: #ff0055; background-color: rgba(255, 0, 85, 0.03); }
+        .mode-btn#sex-btn.active .circle { border-color: #ff0055; background-color: #ff0055; }
+        .mode-btn#date-btn.active { border-color: #0088ff; color: #0088ff; background-color: rgba(0, 136, 255, 0.03); }
+        .mode-btn#date-btn.active .circle { border-color: #0088ff; background-color: #0088ff; }
+        
+        .gender-btn.active { border-color: #ffffff; background-color: #1c1f24; }
+        .gender-btn.active .circle { border-color: #ffffff; background-color: #ffffff; }
+
+        .social-toggle-btn.active {
             border-color: #ffffff;
             background-color: #1c1f24;
         }
-        .gender-btn.active .checkbox-circle {
-            border-color: #ffffff;
-            background-color: #ffffff;
-        }
-        .gender-btn.active .checkbox-circle::after {
-            content: "✓";
-            color: #000000;
-            font-size: 12px;
-            font-weight: bold;
-        }
+
         .submit-btn {
             width: 100%;
             background-color: #ffffff;
@@ -212,23 +177,75 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             margin-bottom: 20px;
-            transition: opacity 0.2s;
         }
-        .submit-btn:active {
-            opacity: 0.8;
+        
+        /* Стили Полноэкранных Окон выбора (Оверлеи) */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: 16px;
+            box-sizing: border-box;
         }
-        .disclaimer {
-            font-size: 11px;
-            color: #55595f;
-            text-align: center;
-            line-height: 1.5;
-            padding: 0 10px;
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
         }
-        .disclaimer a {
+        .overlay-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .close-overlay {
+            font-size: 24px;
+            cursor: pointer;
             color: #6c7278;
-            text-decoration: underline;
+        }
+        .search-box {
+            background-color: #121417;
+            border: 1px solid #1c1f24;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+        }
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .list-item {
+            padding: 16px;
+            border-bottom: 1px solid #121417;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .list-item:active {
+            background-color: #121417;
+        }
+        .metro-section {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #6c7278;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -237,57 +254,169 @@
 <div class="neon-glow" id="glow"></div>
 
 <div class="container">
-    <h2>Создать профиль</h2>
-    <div class="subtitle">Заполните обязательные* поля</div>
+    
+    <div id="screen-main" class="screen active">
+        <h2>Создать профиль</h2>
+        <div class="subtitle">Заполните обязательные* поля</div>
 
-    <!-- РЕЖИМ (SEX / DATE) -->
-    <label>Что вы ищете? *</label>
-    <div class="mode-container">
-        <div class="mode-btn" id="sex-btn" onclick="selectMode('Sex')"><span class="circle"></span> SEX</div>
-        <div class="mode-btn" id="date-btn" onclick="selectMode('Date')"><span class="circle"></span> DATE</div>
-    </div>
-
-    <!-- ИМЯ -->
-    <label>Имя*</label>
-    <div class="input-group">
-        <input type="text" id="name" placeholder="Введите ваше имя">
-    </div>
-
-    <!-- ДАТА РОЖДЕНИЯ -->
-    <label>Возраст*</label>
-    <div class="input-group">
-        <span class="field-label">Дата рождения</span>
-        <input type="date" id="birthdate" class="val-right">
-    </div>
-
-    <!-- МЕСТОПОЛОЖЕНИЕ -->
-    <label>Местоположение*</label>
-    <div class="input-group">
-        <span class="field-label">Город</span>
-        <input type="text" id="city" class="val-right" placeholder="Москва" style="text-align: right;">
-    </div>
-    <div class="input-group">
-        <span class="field-label">Станция метро</span>
-        <input type="text" id="metro" class="val-right" placeholder="Выбрать (необязательно)" style="text-align: right;">
-    </div>
-
-    <!-- ПОЛ -->
-    <label>Пол*</label>
-    <div class="mode-container">
-        <div class="gender-btn" id="gender-male" onclick="selectGender('Мужской')">
-            <span class="checkbox-circle"></span> Мужской
+        <label>Что вы ищете? *</label>
+        <div class="mode-container">
+            <div class="mode-btn" id="sex-btn" onclick="selectMode('Sex')"><span class="circle"></span> SEX</div>
+            <div class="mode-btn" id="date-btn" onclick="selectMode('Date')"><span class="circle"></span> DATE</div>
         </div>
-        <div class="gender-btn" id="gender-female" onclick="selectGender('Женский')">
-            <span class="checkbox-circle"></span> Женский
+
+        <label>Имя*</label>
+        <div class="input-group" id="name-group">
+            <input type="text" id="name" placeholder="Введите ваше имя" oninput="clearError()">
         </div>
+        <div class="error-message" id="name-error">Поле обязательное</div>
+
+        <label>Возраст*</label>
+        <div class="input-group">
+            <span class="field-label">Дата рождения</span>
+            <input type="date" id="birthdate" class="val-right">
+        </div>
+
+        <label>Местоположение*</label>
+        <div class="input-group" onclick="openOverlay('city-overlay')">
+            <span class="field-label">Город</span>
+            <input type="text" id="city" class="val-right" placeholder="Выбрать" readonly>
+        </div>
+        
+        <div id="metro-wrapper" style="display: none;">
+            <div class="input-group" onclick="openOverlay('metro-overlay')">
+                <span class="field-label">Станция метро</span>
+                <input type="text" id="metro" class="val-right" placeholder="Выбрать (необязательно)" readonly>
+            </div>
+        </div>
+
+        <label>Пол*</label>
+        <div class="mode-container">
+            <div class="gender-btn" id="gender-male" onclick="selectGender('Мужской')"><span class="circle"></span> Мужской</div>
+            <div class="gender-btn" id="gender-female" onclick="selectGender('Женский')"><span class="circle"></span> Женский</div>
+        </div>
+
+        <button class="submit-btn" onclick="goToNextScreen()">Продолжить</button>
     </div>
 
-    <!-- КНОПКА ОТПРАВКИ -->
-    <button class="submit-btn" onclick="sendDataToBot()">Продолжить</button>
+    <div id="screen-additional" class="screen">
+        <h2>Дополнительно</h2>
+        <div class="subtitle">Расскажите о себе в анкете</div>
 
-    <div class="disclaimer">
-        Продолжая, вы принимаете <a href="#">Условия Использования</a> и <a href="#">Политику Конфиденциальности</a>, а также даете согласие на <a href="#">обработку ПД</a> и подтверждаете, что вам исполнилось 18 лет.
+        <label>О себе</label>
+        <div class="input-group">
+            <textarea id="bio" placeholder="Расскажи о себе, своих интересах или планах на вечер..."></textarea>
+        </div>
+
+        <label>Я хочу</label>
+        <div class="input-group" onclick="openOverlay('target-overlay')">
+            <span class="field-label">Выбрать</span>
+            <input type="text" id="target" class="val-right" placeholder="Не указано" readonly>
+        </div>
+
+        <label>Деятельность</label>
+        <div class="input-group" onclick="openOverlay('activity-overlay')">
+            <span class="field-label">Выбрать</span>
+            <input type="text" id="activity" class="val-right" placeholder="Не указано" readonly>
+        </div>
+
+        <label>Рост</label>
+        <div class="input-group" onclick="openOverlay('height-overlay')">
+            <span class="field-label">Выбрать</span>
+            <input type="text" id="height" class="val-right" placeholder="Не указано" readonly>
+        </div>
+
+        <label>Социальные сети</label>
+        <div class="mode-container" style="margin-bottom: 12px;">
+            <div class="social-toggle-btn" id="soc-instagram" onclick="selectSocial('Instagram')">Instagram</div>
+            <div class="social-toggle-btn" id="soc-vk" onclick="selectSocial('ВКонтакте')">ВКонтакте</div>
+        </div>
+        <div class="input-group" id="social-input-wrapper" style="display: none;">
+            <input type="text" id="social-username" placeholder="@username или id">
+        </div>
+
+        <button class="submit-btn" onclick="sendAllDataToBot()">Готово</button>
     </div>
+</div>
+
+<div id="city-overlay" class="overlay">
+    <div class="overlay-header">
+        <div class="overlay-title">Выбор города</div>
+        <div class="close-overlay" onclick="closeOverlay('city-overlay')">✕</div>
+    </div>
+    <div class="list-container">
+        <div class="list-item" onclick="setCity('Москва')">Москва</div>
+        <div class="list-item" onclick="setCity('Санкт-Петербург')">Санкт-Петербург</div>
+        <div class="list-item" onclick="setCity('Новосибирск')">Новосибирск</div>
+        <div class="list-item" onclick="setCity('Екатеринбург')">Екатеринбург</div>
+        <div class="list-item" onclick="setCity('Казань')">Казань</div>
+        <div class="list-item" onclick="setCity('Краснодар')">Краснодар</div>
+        <div class="list-item" onclick="setCity('Нижний Новгород')">Нижний Новгород</div>
+        <div class="list-item" onclick="setCity('Сочи')">Сочи</div>
+    </div>
+</div>
+
+<div id="metro-overlay" class="overlay">
+    <div class="overlay-header">
+        <div class="overlay-title">Станция метро</div>
+        <div class="close-overlay" onclick="closeOverlay('metro-overlay')">✕</div>
+    </div>
+    <div class="search-box">
+        <input type="text" id="metro-search" placeholder="Поиск станции..." oninput="filterMetro()">
+    </div>
+    <div class="list-container" id="metro-list">
+        <div class="metro-section">Сокольническая линия</div>
+        <div class="list-item metro-node" onclick="setMetro('Сокольники')">Сокольники</div>
+        <div class="list-item metro-node" onclick="setMetro('Охотный Ряд')">Охотный Ряд</div>
+        <div class="list-item metro-node" onclick="setMetro('Парк Культуры')">Парк Культуры</div>
+        
+        <div class="metro-section">Замоскворецкая линия</div>
+        <div class="list-item metro-node" onclick="setMetro('Тверская')">Тверская</div>
+        <div class="list-item metro-node" onclick="setMetro('Маяковская')">Маяковская</div>
+        <div class="list-item metro-node" onclick="setMetro('Павелецкая')">Павелецкая</div>
+
+        <div class="metro-section">Арбатско-Покровская линия</div>
+        <div class="list-item metro-node" onclick="setMetro('Арбатская')">Арбатская</div>
+        <div class="list-item metro-node" onclick="setMetro('Смоленская')">Смоленская</div>
+        <div class="list-item metro-node" onclick="setMetro('Бауманская')">Бауманская</div>
+    </div>
+</div>
+
+<div id="target-overlay" class="overlay">
+    <div class="overlay-header">
+        <div class="overlay-title">Чего вы хотите?</div>
+        <div class="close-overlay" onclick="closeOverlay('target-overlay')">✕</div>
+    </div>
+    <div class="list-container">
+        <div class="list-item" onclick="setTarget('Серьезные отношения')">Серьезные отношения</div>
+        <div class="list-item" onclick="setTarget('Флирт / Секс на одну ночь')">Флирт / Секс на одну ночь</div>
+        <div class="list-item" onclick="setTarget('Регулярный секс')">Регулярный секс</div>
+        <div class="list-item" onclick="setTarget('Прогулки / Общение')">Прогулки / Общение</div>
+        <div class="list-item" onclick="setTarget('Посмотрим, куда зайдет')">Посмотрим, куда зайдет</div>
+    </div>
+</div>
+
+<div id="activity-overlay" class="overlay">
+    <div class="overlay-header">
+        <div class="overlay-title">Деятельность</div>
+        <div class="close-overlay" onclick="closeOverlay('activity-overlay')">✕</div>
+    </div>
+    <div class="list-container">
+        <div class="list-item" onclick="setActivity('Работаю')">Работаю</div>
+        <div class="list-item" onclick="setActivity('Учусь в ВУЗе')">Учусь в ВУЗе</div>
+        <div class="list-item" onclick="setActivity('Фрилансер')">Фрилансер</div>
+        <div class="list-item" onclick="setActivity('Бизнес')">Бизнес</div>
+        <div class="list-item" onclick="setActivity('Ищу себя')">Ищу себя</div>
+    </div>
+</div>
+
+<div id="height-overlay" class="overlay">
+    <div class="overlay-header">
+        <div class="overlay-title">Выберите рост</div>
+        <div class="close-overlay" onclick="closeOverlay('height-overlay')">✕</div>
+    </div>
+    <div class="list-container" id="height-list">
+        </div>
 </div>
 
 <script>
@@ -296,76 +425,147 @@
 
     let currentMode = "";
     let currentGender = "";
+    let selectedSocialType = "";
 
+    // Настройка выбора режима (Sex / Date)
     function selectMode(mode) {
         currentMode = mode;
         const glow = document.getElementById('glow');
-        const sexBtn = document.getElementById('sex-btn');
-        const dateBtn = document.getElementById('date-btn');
-
-        sexBtn.classList.remove('active');
-        dateBtn.classList.remove('active');
+        document.getElementById('sex-btn').classList.remove('active');
+        document.getElementById('date-btn').classList.remove('active');
 
         if (mode === 'Sex') {
-            sexBtn.classList.add('active');
+            document.getElementById('sex-btn').classList.add('active');
             glow.style.boxShadow = "0 0 160px 70px rgba(255, 0, 85, 0.18)";
             glow.style.background = "rgba(255, 0, 85, 0.04)";
-        } else if (mode === 'Date') {
-            dateBtn.classList.add('active');
+        } else {
+            document.getElementById('date-btn').classList.add('active');
             glow.style.boxShadow = "0 0 160px 70px rgba(0, 136, 255, 0.18)";
             glow.style.background = "rgba(0, 136, 255, 0.04)";
         }
     }
 
+    // Выбор пола
     function selectGender(gender) {
         currentGender = gender;
         document.getElementById('gender-male').classList.remove('active');
         document.getElementById('gender-female').classList.remove('active');
+        if (gender === 'Мужской') document.getElementById('gender-male').classList.add('active');
+        else document.getElementById('gender-female').classList.add('active');
+    }
 
-        if (gender === 'Мужской') {
-            document.getElementById('gender-male').classList.add('active');
-        } else if (gender === 'Женский') {
-            document.getElementById('gender-female').classList.add('active');
+    // Работа с оверлеями
+    function openOverlay(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+
+    function setCity(city) {
+        document.getElementById('city').value = city;
+        closeOverlay('city-overlay');
+        const metroWrapper = document.getElementById('metro-wrapper');
+        if (city === 'Москва') {
+            metroWrapper.style.display = 'block';
+        } else {
+            metroWrapper.style.display = 'none';
+            document.getElementById('metro').value = '';
         }
     }
 
-    function sendDataToBot() {
+    function setMetro(station) {
+        document.getElementById('metro').value = station;
+        closeOverlay('metro-overlay');
+    }
+
+    function setTarget(val) { document.getElementById('target').value = val; closeOverlay('target-overlay'); }
+    function setActivity(val) { document.getElementById('activity').value = val; closeOverlay('activity-overlay'); }
+    
+    // Генерация списка роста
+    const heightList = document.getElementById('height-list');
+    for (let h = 140; h <= 210; h++) {
+        let div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerText = `${h} см`;
+        div.onclick = function() {
+            document.getElementById('height').value = `${h} см`;
+            closeOverlay('height-overlay');
+        };
+        heightList.appendChild(div);
+    }
+
+    // Поиск по метро
+    function filterMetro() {
+        let text = document.getElementById('metro-search').value.toLowerCase();
+        let nodes = document.getElementsByClassName('metro-node');
+        let sections = document.getElementsByClassName('metro-section');
+        
+        for (let node of nodes) {
+            if (node.innerText.toLowerCase().includes(text)) node.style.display = 'block';
+            else node.style.display = 'none';
+        }
+        for (let sec of sections) {
+            sec.style.display = text ? 'none' : 'block';
+        }
+    }
+
+    // Очистка ошибки при вводе
+    function clearError() {
+        document.getElementById('name-group').classList.remove('error-border');
+        document.getElementById('name-error').style.display = 'none';
+    }
+
+    // Переход на экран 2 (с валидацией)
+    function goToNextScreen() {
         const name = document.getElementById('name').value.trim();
         const birthdate = document.getElementById('birthdate').value;
-        const city = document.getElementById('city').value.trim();
-        const metro = document.getElementById('metro').value.trim();
+        const city = document.getElementById('city').value;
 
-        if (!currentMode) {
-            alert("Выберите режим: SEX или DATE");
-            return;
-        }
+        if (!currentMode) { alert("Выберите, что вы ищете (SEX или DATE)"); return; }
+        
         if (!name) {
-            alert("Введите ваше имя");
+            document.getElementById('name-group').classList.add('error-border');
+            document.getElementById('name-error').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
-        if (!birthdate) {
-            alert("Укажите дату рождения");
-            return;
-        }
-        if (!city) {
-            alert("Укажите ваш город");
-            return;
-        }
-        if (!currentGender) {
-            alert("Выберите ваш пол");
-            return;
-        }
+        if (!birthdate) { alert("Укажите вашу дату рождения"); return; }
+        if (!city) { alert("Выберите город"); return; }
+        if (!currentGender) { alert("Выберите ваш пол"); return; }
 
-        const data = {
+        document.getElementById('screen-main').classList.remove('active');
+        document.getElementById('screen-additional').classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    // Выбор соцсети
+    function selectSocial(type) {
+        selectedSocialType = type;
+        document.getElementById('soc-instagram').classList.remove('active');
+        document.getElementById('soc-vk').classList.remove('active');
+        document.getElementById('social-input-wrapper').style.display = 'block';
+        
+        if (type === 'Instagram') document.getElementById('soc-instagram').classList.add('active');
+        else document.getElementById('soc-vk').classList.add('active');
+    }
+
+    // Финальный сбор данных и отправка
+    function sendAllDataToBot() {
+        const metroVal = document.getElementById('metro').value;
+        
+        const finalData = {
             purpose: currentMode,
-            name: name,
-            birthdate: birthdate,
-            city: city,
-            metro: metro ? metro : "Не указано",
-            gender: currentGender
+            name: document.getElementById('name').value.trim(),
+            birthdate: document.getElementById('birthdate').value,
+            city: document.getElementById('city').value,
+            metro: metroVal ? metroVal : "Не указано",
+            gender: currentGender,
+            bio: document.getElementById('bio').value.trim() || "Не указано",
+            target: document.getElementById('target').value || "Не указано",
+            activity: document.getElementById('activity').value || "Не указано",
+            height: document.getElementById('height').value || "Не указано",
+            social_type: selectedSocialType || "Не выбрано",
+            social_username: document.getElementById('social-username').value.trim() || "Не указано"
         };
 
-        tg.sendData(JSON.stringify(data));
+        tg.sendData(JSON.stringify(finalData));
         tg.close();
     }
 </script>
