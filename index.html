@@ -2,100 +2,233 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOD - Создать профиль</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #08090a;
+            background-color: #000000;
             color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .neon-glow {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 320px;
             background: transparent;
             border-radius: 50%;
-            box-shadow: 0 0 120px 50px rgba(255, 255, 255, 0);
+            box-shadow: 0 0 140px 60px rgba(255, 255, 255, 0);
             z-index: -1;
             transition: box-shadow 0.6s ease, background 0.6s ease;
         }
         .container {
             width: 100%;
-            max-width: 360px;
-            margin-top: 40px;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0 6px 0;
+            letter-spacing: 0.5px;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: #6c7278;
+            text-align: center;
+            margin-bottom: 30px;
         }
         label {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             color: #6c7278;
             margin-bottom: 8px;
-            display: block;
+            font-weight: 600;
+            padding-left: 4px;
         }
-        .input-field {
-            width: 100%;
+        .input-group {
+            position: relative;
             background-color: #121417;
-            border: 1px solid #22252a;
+            border: 1px solid #1c1f24;
             border-radius: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
             padding: 16px;
-            color: #fff;
-            font-size: 16px;
             box-sizing: border-box;
-            margin-bottom: 28px;
+        }
+        .input-group:focus-within {
+            border-color: #333842;
+        }
+        .input-group span.field-label {
+            font-size: 16px;
+            color: #ffffff;
+            flex: 1;
+        }
+        .input-group input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
             outline: none;
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .input-group input::placeholder {
+            color: #4a4f54;
+        }
+        /* Стилизация выбора даты */
+        .input-group input[type="date"] {
+            text-align: right;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        /* Для кастомного отображения текста справа */
+        .input-group .val-right {
+            text-align: right;
+            color: #ffffff;
+            font-size: 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            width: 60%;
         }
         .mode-container {
             display: flex;
-            gap: 14px;
-            margin-bottom: 40px;
+            gap: 12px;
+            margin-bottom: 24px;
         }
         .mode-btn {
             flex: 1;
             background-color: #121417;
-            border: 1px solid #22252a;
+            border: 1px solid #1c1f24;
             border-radius: 14px;
-            padding: 18px;
-            color: #fff;
-            font-size: 18px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+        .mode-btn .circle {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #4a4f54;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            position: relative;
+        }
+        /* Активные состояния для SEX (Розовый неон) */
         .mode-btn#sex-btn.active {
             border-color: #ff0055;
             color: #ff0055;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
-            background-color: rgba(255, 0, 85, 0.05);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+            background-color: rgba(255, 0, 85, 0.03);
         }
+        .mode-btn#sex-btn.active .circle {
+            border-color: #ff0055;
+            background-color: #ff0055;
+        }
+        /* Активные состояния для DATE (Синий неон) */
         .mode-btn#date-btn.active {
             border-color: #0088ff;
             color: #0088ff;
-            box-shadow: 0 0 15px rgba(0, 136, 255, 0.3);
-            background-color: rgba(0, 136, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.2);
+            background-color: rgba(0, 136, 255, 0.03);
+        }
+        .mode-btn#date-btn.active .circle {
+            border-color: #0088ff;
+            background-color: #0088ff;
+        }
+        /* Кнопки выбора Пола */
+        .gender-btn {
+            flex: 1;
+            background-color: #121417;
+            border: 1px solid #1c1f24;
+            border-radius: 14px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .gender-btn .checkbox-circle {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #4a4f54;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gender-btn.active {
+            border-color: #ffffff;
+            background-color: #1c1f24;
+        }
+        .gender-btn.active .checkbox-circle {
+            border-color: #ffffff;
+            background-color: #ffffff;
+        }
+        .gender-btn.active .checkbox-circle::after {
+            content: "✓";
+            color: #000000;
+            font-size: 12px;
+            font-weight: bold;
         }
         .submit-btn {
             width: 100%;
             background-color: #ffffff;
             color: #000000;
             border: none;
-            border-radius: 30px;
-            padding: 18px;
+            border-radius: 28px;
+            padding: 16px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+        .submit-btn:active {
+            opacity: 0.8;
+        }
+        .disclaimer {
+            font-size: 11px;
+            color: #55595f;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 10px;
+        }
+        .disclaimer a {
+            color: #6c7278;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -104,19 +237,57 @@
 <div class="neon-glow" id="glow"></div>
 
 <div class="container">
-    <label>Ваше имя</label>
-    <input type="text" id="name" class="input-field" placeholder="Имя или никнейм...">
+    <h2>Создать профиль</h2>
+    <div class="subtitle">Заполните обязательные* поля</div>
 
-    <label>Возраст</label>
-    <input type="number" id="age" class="input-field" placeholder="Сколько вам лет?">
-
+    <!-- РЕЖИМ (SEX / DATE) -->
     <label>Что вы ищете? *</label>
     <div class="mode-container">
-        <div class="mode-btn" id="sex-btn" onclick="selectMode('Sex')">SEX</div>
-        <div class="mode-btn" id="date-btn" onclick="selectMode('Date')">DATE</div>
+        <div class="mode-btn" id="sex-btn" onclick="selectMode('Sex')"><span class="circle"></span> SEX</div>
+        <div class="mode-btn" id="date-btn" onclick="selectMode('Date')"><span class="circle"></span> DATE</div>
     </div>
 
-    <button class="submit-btn" onclick="sendDataToBot()">Создать аккаунт</button>
+    <!-- ИМЯ -->
+    <label>Имя*</label>
+    <div class="input-group">
+        <input type="text" id="name" placeholder="Введите ваше имя">
+    </div>
+
+    <!-- ДАТА РОЖДЕНИЯ -->
+    <label>Возраст*</label>
+    <div class="input-group">
+        <span class="field-label">Дата рождения</span>
+        <input type="date" id="birthdate" class="val-right">
+    </div>
+
+    <!-- МЕСТОПОЛОЖЕНИЕ -->
+    <label>Местоположение*</label>
+    <div class="input-group">
+        <span class="field-label">Город</span>
+        <input type="text" id="city" class="val-right" placeholder="Москва" style="text-align: right;">
+    </div>
+    <div class="input-group">
+        <span class="field-label">Станция метро</span>
+        <input type="text" id="metro" class="val-right" placeholder="Выбрать (необязательно)" style="text-align: right;">
+    </div>
+
+    <!-- ПОЛ -->
+    <label>Пол*</label>
+    <div class="mode-container">
+        <div class="gender-btn" id="gender-male" onclick="selectGender('Мужской')">
+            <span class="checkbox-circle"></span> Мужской
+        </div>
+        <div class="gender-btn" id="gender-female" onclick="selectGender('Женский')">
+            <span class="checkbox-circle"></span> Женский
+        </div>
+    </div>
+
+    <!-- КНОПКА ОТПРАВКИ -->
+    <button class="submit-btn" onclick="sendDataToBot()">Продолжить</button>
+
+    <div class="disclaimer">
+        Продолжая, вы принимаете <a href="#">Условия Использования</a> и <a href="#">Политику Конфиденциальности</a>, а также даете согласие на <a href="#">обработку ПД</a> и подтверждаете, что вам исполнилось 18 лет.
+    </div>
 </div>
 
 <script>
@@ -124,6 +295,7 @@
     tg.expand();
 
     let currentMode = "";
+    let currentGender = "";
 
     function selectMode(mode) {
         currentMode = mode;
@@ -136,25 +308,63 @@
 
         if (mode === 'Sex') {
             sexBtn.classList.add('active');
-            glow.style.boxShadow = "0 0 150px 70px rgba(255, 0, 85, 0.15)";
-            glow.style.background = "rgba(255, 0, 85, 0.05)";
+            glow.style.boxShadow = "0 0 160px 70px rgba(255, 0, 85, 0.18)";
+            glow.style.background = "rgba(255, 0, 85, 0.04)";
         } else if (mode === 'Date') {
             dateBtn.classList.add('active');
-            glow.style.boxShadow = "0 0 150px 70px rgba(0, 136, 255, 0.15)";
-            glow.style.background = "rgba(0, 136, 255, 0.05)";
+            glow.style.boxShadow = "0 0 160px 70px rgba(0, 136, 255, 0.18)";
+            glow.style.background = "rgba(0, 136, 255, 0.04)";
+        }
+    }
+
+    function selectGender(gender) {
+        currentGender = gender;
+        document.getElementById('gender-male').classList.remove('active');
+        document.getElementById('gender-female').classList.remove('active');
+
+        if (gender === 'Мужской') {
+            document.getElementById('gender-male').classList.add('active');
+        } else if (gender === 'Женский') {
+            document.getElementById('gender-female').classList.add('active');
         }
     }
 
     function sendDataToBot() {
-        const name = document.getElementById('name').value;
-        const age = document.getElementById('age').value;
+        const name = document.getElementById('name').value.trim();
+        const birthdate = document.getElementById('birthdate').value;
+        const city = document.getElementById('city').value.trim();
+        const metro = document.getElementById('metro').value.trim();
 
-        if (!name || !age || !currentMode) {
-            alert("Заполните все поля");
+        if (!currentMode) {
+            alert("Выберите режим: SEX или DATE");
+            return;
+        }
+        if (!name) {
+            alert("Введите ваше имя");
+            return;
+        }
+        if (!birthdate) {
+            alert("Укажите дату рождения");
+            return;
+        }
+        if (!city) {
+            alert("Укажите ваш город");
+            return;
+        }
+        if (!currentGender) {
+            alert("Выберите ваш пол");
             return;
         }
 
-        const data = { name: name, age: int(age), purpose: currentMode };
+        const data = {
+            purpose: currentMode,
+            name: name,
+            birthdate: birthdate,
+            city: city,
+            metro: metro ? metro : "Не указано",
+            gender: currentGender
+        };
+
         tg.sendData(JSON.stringify(data));
         tg.close();
     }
