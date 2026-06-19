@@ -2,125 +2,102 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOD - Создать профиль</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOD - Знакомства</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #000000;
-            --card: #121417;
-            --border: #1c1f24;
-            --text: #ffffff;
-            --text-muted: #6c7278;
-            --accent: #d4a373; /* Премиальный золотистый оттень для чекбоксов */
-            --error: #ff453a;
+            --bg-color: #000000;
+            --surface-color: #121212;
+            --input-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --text-muted: #7a7a7a;
+            --accent-gold: #e5a93b;
+            --error-color: #ff4d4d;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
-        .container {
-            width: 100%;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .screen {
-            display: none;
-            width: 100%;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
         h2 {
-            font-size: 24px;
-            font-weight: bold;
             text-align: center;
-            margin: 20px 0 6px 0;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
 
         .subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
             text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
             margin-bottom: 25px;
+            padding: 0 10px;
+            line-height: 1.4;
         }
 
-        .input-wrapper {
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        .label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            padding-left: 2px;
-        }
-
-        .input-box {
-            width: 100%;
-            background-color: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            box-sizing: border-box;
-            color: var(--text);
-            font-size: 16px;
-            outline: none;
+        .step-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
+            flex-direction: column;
+            gap: 18px;
+            flex-grow: 1;
         }
 
-        .input-box input {
-            background: transparent;
-            border: none;
-            color: var(--text);
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            background-color: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: var(--text-color);
+            padding: 14px;
             font-size: 16px;
             outline: none;
+            transition: all 0.3s ease;
             width: 100%;
-            padding: 0;
+            box-sizing: border-box;
         }
 
-        .input-box input::placeholder {
-            color: #4a4f54;
+        /* Стиль фокуса для даты рождения и остальных полей */
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(229, 169, 59, 0.2);
         }
 
-        .input-box .val-right {
-            text-align: right;
-            color: var(--text);
-            background: transparent;
-            border: none;
-            outline: none;
-            width: 60%;
-            caret-color: transparent;
+        /* Ошибка валидации */
+        input.error-border {
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
         }
 
-        .chevron {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-left: 6px;
+        .error-message {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 2px;
+            display: none;
         }
 
-        /* Пол как на скрине mDate */
+        /* Выбор пола кнопками */
         .gender-container {
             display: flex;
             gap: 12px;
@@ -128,437 +105,233 @@
 
         .gender-btn {
             flex: 1;
-            background-color: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            color: var(--text);
+            background-color: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: var(--text-muted);
+            padding: 14px;
             font-size: 16px;
-            font-weight: 500;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
-        }
-
-        .gender-btn .circle {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #4a4f54;
-            border-radius: 50%;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            transition: all 0.2s ease;
         }
 
         .gender-btn.active {
-            border-color: var(--accent);
-            background-color: rgba(212, 163, 115, 0.05);
+            border-color: var(--accent-gold);
+            color: var(--text-color);
+            background-color: rgba(229, 169, 59, 0.05);
         }
 
-        .gender-btn.active .circle {
-            border-color: var(--accent);
-            background-color: var(--accent);
-        }
+        /* Стилизация выпадающего списка Метро с цветами веток */
+        .metro-option-red { border-left: 4px solid #ef161e; padding-left: 6px; }
+        .metro-option-green { border-left: 4px solid #2db440; padding-left: 6px; }
+        .metro-option-blue { border-left: 4px solid #0078bf; padding-left: 6px; }
 
-        .gender-btn.active .circle::after {
-            content: "✓";
-            color: #000;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .submit-btn {
-            width: 100%;
+        /* Кнопка продолжить */
+        .btn-submit {
             background-color: #ffffff;
+            border: none;
+            border-radius: 25px;
             color: #000000;
-            border: none;
-            border-radius: 30px;
-            padding: 18px;
             font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            margin-bottom: 15px;
-        }
-
-        .footer-legal {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            line-height: 1.4;
-            margin-bottom: 30px;
-        }
-
-        .footer-legal a {
-            color: var(--text-muted);
-            text-decoration: underline;
-        }
-
-        /* Оверлеи списков */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000000;
-            z-index: 100;
-            display: none;
-            flex-direction: column;
+            font-weight: 600;
             padding: 16px;
-            box-sizing: border-box;
-        }
-
-        .overlay-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .close-overlay {
-            font-size: 20px;
             cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .search-box {
-            background-color: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 15px;
-        }
-
-        .search-box input {
-            background: transparent;
-            border: none;
-            color: var(--text);
             width: 100%;
-            font-size: 16px;
-            outline: none;
+            margin-top: auto;
+            text-align: center;
+            box-sizing: border-box;
+            transition: opacity 0.2s;
         }
 
-        .list-container {
-            flex: 1;
-            overflow-y: auto;
+        .btn-submit:active {
+            opacity: 0.8;
         }
 
-        .list-item {
-            padding: 18px;
-            border-bottom: 1px solid #111315;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .metro-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .metro-badge { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .metro-section { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-top: 20px; margin-bottom: 8px; font-weight: bold; padding-left: 4px; letter-spacing: 0.5px; }
-
-        /* Нативный iOS-барабан роста */
-        .picker-top-bar {
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--card);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 30px;
-        }
-
-        .wheel-outer-wrapper { position: relative; width: 100%; height: 250px; margin: auto 0; }
-        .wheel-container {
-            height: 250px;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
-        .wheel-container::-webkit-scrollbar { display: none; }
-        .wheel-scroller { padding: 100px 0; }
-        .wheel-item {
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #4a4f54;
-            scroll-snap-align: center;
-            transition: all 0.15s ease;
-        }
-        .wheel-item.selected {
-            color: var(--text);
-            font-size: 26px;
-            font-weight: bold;
-        }
-        .wheel-mask {
-            position: absolute;
-            top: 100px; left: 0; width: 100%; height: 50px;
-            pointer-events: none;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="screen-main" class="screen active">
+    <div id="step1" class="step-container">
         <h2>Создать профиль</h2>
         <div class="subtitle">Заполните обязательные* поля</div>
 
-        <div class="input-wrapper">
-            <div class="label">Имя*</div>
-            <div class="input-box">
-                <input type="text" id="name" placeholder="Ваше имя">
-            </div>
+        <div class="input-group">
+            <label>Имя*</label>
+            <input type="text" id="name" placeholder="Ваше имя">
+            <div id="name-error" class="error-message"></div>
         </div>
 
-        <div class="input-wrapper">
-            <div class="label">Возраст*</div>
-            <div class="input-box">
-                <span>Дата рождения</span>
-                <input type="date" id="birthdate" class="val-right">
-            </div>
+        <div class="input-group">
+            <label>Дата рождения*</label>
+            <input type="date" id="birthdate">
         </div>
 
-        <div class="input-wrapper">
-            <div class="label">Местоположение*</div>
-            <div class="input-box" onclick="openOverlay('city-overlay')">
-                <span>Город</span>
-                <div>
-                    <input type="text" id="city" class="val-right" placeholder="Выбрать" readonly>
-                    <span class="chevron">›</span>
-                </div>
-            </div>
-        </div>
-        
-        <div id="metro-wrapper" style="display: none;" class="input-wrapper">
-            <div class="label">Станция метро</div>
-            <div class="input-box" onclick="openOverlay('metro-overlay')">
-                <span>Станция метро</span>
-                <div>
-                    <input type="text" id="metro" class="val-right" placeholder="Выбрать" readonly>
-                    <span class="chevron">›</span>
-                </div>
-            </div>
+        <div class="input-group">
+            <label>Город*</label>
+            <select id="city">
+                <option value="Москва">Москва</option>
+                <option value="Санкт-Петербург">Санкт-Петербург</option>
+            </select>
         </div>
 
-        <div class="input-wrapper">
-            <div class="label">Рост</div>
-            <div class="input-box" onclick="openOverlay('height-overlay')">
-                <span>Рост</span>
-                <div>
-                    <input type="text" id="height" class="val-right" placeholder="Выбрать" readonly>
-                    <span class="chevron">›</span>
-                </div>
-            </div>
+        <div class="input-group">
+            <label>Станция метро*</label>
+            <select id="metro">
+                <option value="" disabled selected>Выберите станцию</option>
+                <option value="Сокольники" class="metro-option-red">Сокольники (Сокольническая)</option>
+                <option value="Охотный Ряд" class="metro-option-red">Охотный Ряд (Сокольническая)</option>
+                <option value="Парк Культуры" class="metro-option-red">Парк Культуры (Сокольническая)</option>
+                <option value="Тверская" class="metro-option-green">Тверская (Замоскворецкая)</option>
+                <option value="Маяковская" class="metro-option-green">Маяковская (Замоскворецкая)</option>
+                <option value="Павелецкая" class="metro-option-green">Павелецкая (Замоскворецкая)</option>
+                <option value="Арбатская" class="metro-option-blue">Арбатская (Арбатско-Покровская)</option>
+                <option value="Смоленская" class="metro-option-blue">Смоленская (Арбатско-Покровская)</option>
+                <option value="Бауманская" class="metro-option-blue">Бауманская (Арбатско-Покровская)</option>
+            </select>
         </div>
 
-        <div class="input-wrapper">
-            <div class="label">Пол*</div>
+        <div class="input-group">
+            <label>Пол*</label>
             <div class="gender-container">
-                <div class="gender-btn" id="gender-male" onclick="selectGender('Мужской')"><span class="circle"></span> Мужской</div>
-                <div class="gender-btn" id="gender-female" onclick="selectGender('Женский')"><span class="circle"></span> Женский</div>
+                <div class="gender-btn" id="gender-male" onclick="setGender('Мужской')">Мужской</div>
+                <div class="gender-btn" id="gender-female" onclick="setGender('Женский')">Женский</div>
             </div>
         </div>
 
-        <button class="submit-btn" onclick="sendAllDataToBot()">Продолжить</button>
+        <button class="btn-submit" onclick="nextStep()">Продолжить</button>
+    </div>
 
-        <div class="footer-legal">
-            Продолжая, вы принимаете <a href="#">Условия Использования</a> и <a href="#">Политику Конфиденциальности</a>, а также даете согласие на обработку ПД и подтверждаете, что вам исполнилось 18 лет.
+
+    <div id="step2" class="step-container hidden">
+        <h2>Дополнительно</h2>
+        <div class="subtitle">Добавь деталей, чтобы анкета выглядела круче и быстрее привлекла внимание!</div>
+
+        <div class="input-group">
+            <label>Описание</label>
+            <textarea id="description" rows="3" placeholder="Несколько интересных фактов о себе..."></textarea>
         </div>
-    </div>
-</div>
 
-<div id="city-overlay" class="overlay">
-    <div class="overlay-header">
-        <div>Город</div>
-        <div class="close-overlay" onclick="closeOverlay('city-overlay')">✕</div>
-    </div>
-    <div class="list-container">
-        <div class="list-item" onclick="setCity('Москва')">Москва</div>
-        <div class="list-item" onclick="setCity('Санкт-Петербург')">Санкт-Петербург</div>
-        <div class="list-item" onclick="setCity('Новосибирск')">Новосибирск</div>
-        <div class="list-item" onclick="setCity('Краснодар')">Краснодар</div>
-    </div>
-</div>
-
-<div id="metro-overlay" class="overlay">
-    <div class="overlay-header">
-        <div>Станция метро</div>
-        <div class="close-overlay" onclick="closeOverlay('metro-overlay')">✕</div>
-    </div>
-    <div class="search-box">
-        <input type="text" id="metro-search" placeholder="Поиск станции..." oninput="filterMetro()">
-    </div>
-    <div class="list-container" id="metro-list"></div>
-</div>
-
-<div id="height-overlay" class="overlay">
-    <div class="overlay-header">
-        <div>Рост</div>
-        <div class="close-overlay" onclick="resetHeight()" style="font-size:15px;">Сбросить</div>
-    </div>
-    <div class="picker-top-bar">
-        <span>Текущий:</span>
-        <span id="current-wheel-val">170 см</span>
-    </div>
-    <div class="wheel-outer-wrapper">
-        <div class="wheel-mask"></div>
-        <div class="wheel-container" id="height-wheel" onscroll="handleWheelScroll()">
-            <div class="wheel-scroller" id="height-scroller"></div>
+        <div class="input-group">
+            <label>Я хочу</label>
+            <select id="purpose">
+                <option value="" disabled selected>Укажите цель</option>
+                <option value="Серьезные отношения">Серьезные отношения</option>
+                <option value="Флирт / Секс на одну ночь">Флирт / Секс на одну ночь</option>
+                <option value="Регулярный секс">Регулярный sex</option>
+                <option value="Прогулки / Общение">Прогулки / Общение</option>
+                <option value="Посмотрим, куда зайдет">Посмотрим, куда зайдет</option>
+            </select>
         </div>
+
+        <div class="input-group">
+            <label>Деятельность</label>
+            <input type="text" id="activity" placeholder="Чем вы занимаетесь?">
+        </div>
+
+        <div class="input-group">
+            <label>Рост (см)</label>
+            <select id="height"></select>
+        </div>
+
+        <div class="input-group">
+            <label>Социальные сети</label>
+            <input type="text" id="instagram" placeholder="Ник в Instagram" style="margin-bottom: 8px;">
+            <input type="text" id="vk" placeholder="Ссылка или ник в VK">
+        </div>
+
+        <button class="btn-submit" onclick="submitForm()">Готово</button>
     </div>
-    <button class="submit-btn" style="margin-top:auto;" onclick="saveHeightFromWheel()">Сохранить</button>
-</div>
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем Web App на весь экран
 
-    let currentGender = "";
-    let selectedHeightTemp = 170;
+        let selectedGender = "";
 
-    const metroData = [
-        { line: "Сокольническая линия", color: "#EF1E25", stations: ["Сокольники", "Охотный Ряд", "Парк Культуры", "Комсомольская", "Чистые пруды", "Лубянка"] },
-        { line: "Замоскворецкая линия", color: "#2DBE2C", stations: ["Тверская", "Маяковская", "Павелецкая", "Белорусская", "Ховрино"] },
-        { line: "Арбатско-Покровская линия", color: "#0078BF", stations: ["Арбатская", "Смоленская", "Бауманская", "Щёлковская", "Митино"] }
-    ];
+        // Генерация списка роста от 140 до 220 см
+        const heightSelect = document.getElementById('height');
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.text = "Выберите рост";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        heightSelect.appendChild(defaultOption);
 
-    window.onload = function() {
-        // Наполнение Метро
-        const metroList = document.getElementById('metro-list');
-        metroData.forEach(lineGroup => {
-            let sec = document.createElement('div');
-            sec.className = 'metro-section';
-            sec.innerText = lineGroup.line;
-            metroList.appendChild(sec);
-
-            lineGroup.stations.forEach(station => {
-                let item = document.createElement('div');
-                item.className = 'list-item metro-node';
-                item.setAttribute('data-search', station.toLowerCase());
-                item.onclick = () => setMetro(station);
-
-                let leftDiv = document.createElement('div');
-                leftDiv.className = 'metro-left';
-                
-                let badge = document.createElement('span');
-                badge.className = 'metro-badge';
-                badge.style.backgroundColor = lineGroup.color;
-
-                let text = document.createElement('span');
-                text.innerText = station;
-
-                leftDiv.appendChild(badge);
-                leftDiv.appendChild(text);
-                item.appendChild(leftDiv);
-                metroList.appendChild(item);
-            });
-        });
-
-        // Наполнение Крутилки Роста
-        const heightScroller = document.getElementById('height-scroller');
-        for (let h = 140; h <= 210; h++) {
-            let div = document.createElement('div');
-            div.className = 'wheel-item';
-            div.id = `h-item-${h}`;
-            div.innerText = `${h} см`;
-            heightScroller.appendChild(div);
-        }
-        setTimeout(() => updateWheelSelection(170), 350);
-    };
-
-    function openOverlay(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
-
-    function selectGender(gender) {
-        currentGender = gender;
-        document.getElementById('gender-male').classList.remove('active');
-        document.getElementById('gender-female').classList.remove('active');
-        document.getElementById(gender === 'Мужской' ? 'gender-male' : 'gender-female').classList.add('active');
-    }
-
-    function setCity(city) {
-        document.getElementById('city').value = city;
-        closeOverlay('city-overlay');
-        document.getElementById('metro-wrapper').style.display = (city === 'Москва') ? 'block' : 'none';
-        if(city !== 'Москва') document.getElementById('metro').value = '';
-    }
-
-    function setMetro(station) {
-        document.getElementById('metro').value = station;
-        closeOverlay('metro-overlay');
-    }
-
-    function filterMetro() {
-        let text = document.getElementById('metro-search').value.toLowerCase();
-        let nodes = document.getElementsByClassName('metro-node');
-        let sections = document.getElementsByClassName('metro-section');
-        for (let node of nodes) {
-            node.style.display = node.getAttribute('data-search').includes(text) ? 'flex' : 'none';
-        }
-        for (let sec of sections) { sec.style.display = text ? 'none' : 'block'; }
-    }
-
-    function handleWheelScroll() {
-        const container = document.getElementById('height-wheel');
-        let index = Math.round(container.scrollTop / 50);
-        let targetHeight = 140 + index;
-        if (targetHeight >= 140 && targetHeight <= 210) {
-            selectedHeightTemp = targetHeight;
-            document.getElementById('current-wheel-val').innerText = `${targetHeight} см`;
-            const items = container.getElementsByClassName('wheel-item');
-            for(let item of items) item.classList.remove('selected');
-            document.getElementById(`h-item-${targetHeight}`)?.classList.add('selected');
-        }
-    }
-
-    function updateWheelSelection(heightVal) {
-        const container = document.getElementById('height-wheel');
-        container.scrollTop = (heightVal - 140) * 50;
-        handleWheelScroll();
-    }
-
-    function saveHeightFromWheel() {
-        document.getElementById('height').value = `${selectedHeightTemp} см`;
-        closeOverlay('height-overlay');
-    }
-
-    function resetHeight() {
-        updateWheelSelection(170);
-        document.getElementById('height').value = '';
-        closeOverlay('height-overlay');
-    }
-
-    function sendAllDataToBot() {
-        const finalData = {
-            name: document.getElementById('name').value.trim(),
-            birthdate: document.getElementById('birthdate').value,
-            city: document.getElementById('city').value,
-            metro: document.getElementById('metro').value || "Не указано",
-            height: document.getElementById('height').value || "Не указано",
-            gender: currentGender
-        };
-        
-        if(!finalData.name || !finalData.birthdate || !finalData.city || !finalData.gender) {
-            alert("Пожалуйста, заполните все обязательные поля!");
-            return;
+        for (let i = 140; i <= 220; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i + " см";
+            heightSelect.appendChild(opt);
         }
 
-        tg.sendData(JSON.stringify(finalData));
-        tg.close();
-    }
-</script>
+        // Выбор пола
+        function setGender(gender) {
+            selectedGender = gender;
+            document.getElementById('gender-male').classList.remove('active');
+            document.getElementById('gender-female').classList.remove('active');
+            
+            if (gender === 'Мужской') {
+                document.getElementById('gender-male').classList.add('active');
+            } else {
+                document.getElementById('gender-female').classList.add('active');
+            }
+        }
+
+        // Переход на Шаг 2 с валидацией имени
+        function nextStep() {
+            const nameInput = document.getElementById('name');
+            const nameError = document.getElementById('name-error');
+            const nameValue = nameInput.value.trim();
+
+            // Сброс ошибок
+            nameInput.classList.remove('error-border');
+            nameError.style.display = 'none';
+
+            // Валидация на пустоту
+            if (!nameValue) {
+                nameInput.classList.add('error-border');
+                nameError.innerText = "Поле имя обязательно для заполнения";
+                nameError.style.display = 'block';
+                return;
+            }
+
+            // Валидация на цифры
+            if (/\d/.test(nameValue)) {
+                nameInput.classList.add('error-border');
+                nameError.innerText = "Цифры вводить нельзя";
+                nameError.style.display = 'block';
+                return;
+            }
+
+            // Переключение экранов
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        // Сбор всех данных и отправка в бот
+        function submitForm() {
+            const data = {
+                name: document.getElementById('name').value.trim(),
+                birthdate: document.getElementById('birthdate').value,
+                city: document.getElementById('city').value,
+                metro: document.getElementById('metro').value,
+                gender: selectedGender,
+                description: document.getElementById('description').value.trim(),
+                purpose: document.getElementById('purpose').value,
+                activity: document.getElementById('activity').value.trim(),
+                height: document.getElementById('height').value,
+                instagram: document.getElementById('instagram').value.trim(),
+                vk: document.getElementById('vk').value.trim()
+            };
+
+            // Отправляем JSON строку обратно в Python бот
+            tg.sendData(JSON.stringify(data));
+            tg.close();
+        }
+    </script>
 </body>
 </html>
