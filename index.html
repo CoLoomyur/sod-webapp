@@ -2,136 +2,378 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SOD - Знакомства</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg-color: #000000;
-            --surface-color: #121212;
-            --input-bg: #1a1a1a;
-            --text-color: #ffffff;
-            --text-muted: #7a7a7a;
-            --accent-gold: #e5a93b;
-            --error-color: #ff4d4d;
+            --card-bg: #1c1c1e;
+            --text-main: #ffffff;
+            --text-secondary: #8e8e93;
+            --text-muted: #636366;
+            --border-color: #2c2c2e;
+            --error-color: #ff453a;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
-        h2 {
-            text-align: center;
+        /* Заголовки экранов */
+        .screen-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .back-btn {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            opacity: 0.8;
+        }
+
+        .back-btn:active {
+            opacity: 0.5;
+        }
+
+        .screen-title {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+            margin: 0;
+            flex-grow: 1;
+        }
+        
+        .screen-header-center .screen-title {
+            text-align: center;
+        }
+
+        .clear-btn {
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 500;
         }
 
         .subtitle {
-            text-align: center;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             font-size: 13px;
-            margin-bottom: 25px;
-            padding: 0 10px;
+            line-height: 1.5;
+            margin-top: -16px;
+            margin-bottom: 24px;
+        }
+
+        /* Компоненты форм и блоков */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+
+        .input-block {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 4px 16px;
+            margin-bottom: 20px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .input-row:last-child {
+            border-bottom: none;
+        }
+
+        .input-label {
+            font-size: 16px;
+            color: var(--text-main);
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .input-field {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 16px;
+            text-align: right;
+            outline: none;
+            flex-grow: 1;
+            padding: 0;
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Псевдо-селекторы */
+        .selector-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .selector-trigger .val {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .chevron-right {
+            border: solid var(--text-muted);
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(-45deg);
+            margin-left: 8px;
+        }
+
+        /* Карточки списков */
+        .premium-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:active {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .list-item-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* Экран целей "Я хочу" */
+        .purpose-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .purpose-item:last-child {
+            border-bottom: none;
+        }
+
+        .purpose-icon-box {
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .purpose-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .purpose-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .purpose-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
             line-height: 1.4;
         }
 
-        .step-container {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            flex-grow: 1;
+        /* Поиск для метро */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input, select, textarea {
-            background-color: var(--input-bg);
-            border: 1px solid transparent;
+        .search-input {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: none;
             border-radius: 12px;
-            color: var(--text-color);
-            padding: 14px;
+            padding: 12px 16px 12px 42px;
+            color: var(--text-main);
             font-size: 16px;
             outline: none;
-            transition: all 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
         }
 
-        /* Стиль фокуса для даты рождения и остальных полей */
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 10px rgba(229, 169, 59, 0.2);
-        }
-
-        /* Ошибка валидации */
-        input.error-border {
-            border-color: var(--error-color) !important;
-            box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
-        }
-
-        .error-message {
-            color: var(--error-color);
-            font-size: 12px;
-            margin-top: 2px;
-            display: none;
-        }
-
-        /* Выбор пола кнопками */
-        .gender-container {
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
-            gap: 12px;
+            align-items: center;
         }
 
-        .gender-btn {
+        .metro-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: inline-block;
+        }
+
+        /* Выбор пола */
+        .gender-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gender-option {
             flex: 1;
-            background-color: var(--input-bg);
+            background-color: var(--card-bg);
             border: 1px solid transparent;
-            border-radius: 12px;
-            color: var(--text-muted);
-            padding: 14px;
-            font-size: 16px;
-            cursor: pointer;
+            border-radius: 14px;
+            padding: 16px;
             text-align: center;
-            transition: all 0.2s ease;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
         }
 
-        .gender-btn.active {
-            border-color: var(--accent-gold);
-            color: var(--text-color);
-            background-color: rgba(229, 169, 59, 0.05);
+        .gender-option.active {
+            border-color: var(--text-main);
+            color: var(--text-main);
         }
 
-        /* Стилизация выпадающего списка Метро с цветами веток */
-        .metro-option-red { border-left: 4px solid #ef161e; padding-left: 6px; }
-        .metro-option-green { border-left: 4px solid #2db440; padding-left: 6px; }
-        .metro-option-blue { border-left: 4px solid #0078bf; padding-left: 6px; }
+        /* Текстовое описание */
+        .textarea-block {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
 
-        /* Кнопка продолжить */
-        .btn-submit {
+        .textarea-block textarea {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            resize: none;
+            padding: 0;
+        }
+
+        /* Медиа-сетка (Экран 3) */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 16px;
+        }
+
+        .media-slot {
+            aspect-ratio: 3 / 4;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-slot.video-slot {
+            grid-column: span 1;
+            width: 100%;
+            aspect-ratio: auto;
+            padding: 16px;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .media-slot .plus-icon {
+            font-size: 24px;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .media-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .video-btn-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Кнопки действий */
+        .btn-action {
             background-color: #ffffff;
             border: none;
-            border-radius: 25px;
+            border-radius: 24px;
             color: #000000;
             font-size: 16px;
             font-weight: 600;
@@ -140,12 +382,46 @@
             width: 100%;
             margin-top: auto;
             text-align: center;
-            box-sizing: border-box;
             transition: opacity 0.2s;
         }
 
-        .btn-submit:active {
+        .btn-action:active {
             opacity: 0.8;
+        }
+
+        .btn-indicator {
+            background-color: var(--card-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 16px;
+            text-align: center;
+            width: 100%;
+            margin-top: auto;
+            cursor: not-allowed;
+        }
+
+        .btn-indicator.ready {
+            background-color: #ffffff;
+            color: #000000;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+            padding-left: 4px;
+        }
+
+        .app-screen {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
         .hidden {
@@ -155,183 +431,408 @@
 </head>
 <body>
 
-    <div id="step1" class="step-container">
-        <h2>Создать профиль</h2>
-        <div class="subtitle">Заполните обязательные* поля</div>
-
-        <div class="input-group">
-            <label>Имя*</label>
-            <input type="text" id="name" placeholder="Ваше имя">
-            <div id="name-error" class="error-message"></div>
+    <div id="screen-step1" class="app-screen">
+        <div class="screen-header screen-header-center">
+            <h2 class="screen-title">Создать профиль</h2>
         </div>
+        <div class="subtitle" style="text-align: center;">Заполните обязательные поля</div>
 
-        <div class="input-group">
-            <label>Дата рождения*</label>
-            <input type="date" id="birthdate">
-        </div>
-
-        <div class="input-group">
-            <label>Город*</label>
-            <select id="city">
-                <option value="Москва">Москва</option>
-                <option value="Санкт-Петербург">Санкт-Петербург</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Станция метро*</label>
-            <select id="metro">
-                <option value="" disabled selected>Выберите станцию</option>
-                <option value="Сокольники" class="metro-option-red">Сокольники (Сокольническая)</option>
-                <option value="Охотный Ряд" class="metro-option-red">Охотный Ряд (Сокольническая)</option>
-                <option value="Парк Культуры" class="metro-option-red">Парк Культуры (Сокольническая)</option>
-                <option value="Тверская" class="metro-option-green">Тверская (Замоскворецкая)</option>
-                <option value="Маяковская" class="metro-option-green">Маяковская (Замоскворецкая)</option>
-                <option value="Павелецкая" class="metro-option-green">Павелецкая (Замоскворецкая)</option>
-                <option value="Арбатская" class="metro-option-blue">Арбатская (Арбатско-Покровская)</option>
-                <option value="Смоленская" class="metro-option-blue">Смоленская (Арбатско-Покровская)</option>
-                <option value="Бауманская" class="metro-option-blue">Бауманская (Арбатско-Покровская)</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Пол*</label>
-            <div class="gender-container">
-                <div class="gender-btn" id="gender-male" onclick="setGender('Мужской')">Мужской</div>
-                <div class="gender-btn" id="gender-female" onclick="setGender('Женский')">Женский</div>
+        <div class="section-label">Основное</div>
+        <div class="input-block">
+            <div class="input-row">
+                <span class="input-label">Имя</span>
+                <input type="text" id="name" class="input-field" placeholder="Введите имя">
+            </div>
+            <div id="name-error" class="error-text"></div>
+            
+            <div class="input-row">
+                <span class="input-label">Дата рождения</span>
+                <input type="date" id="birthdate" class="input-field">
             </div>
         </div>
 
-        <button class="btn-submit" onclick="nextStep()">Продолжить</button>
+        <div class="section-label">Пол</div>
+        <div class="gender-row">
+            <div class="gender-option" id="gender-male" onclick="selectGender('Мужской')">Мужской</div>
+            <div class="gender-option" id="gender-female" onclick="selectGender('Женский')">Женский</div>
+        </div>
+
+        <div class="section-label">Локация</div>
+        <div class="selector-trigger" onclick="navigateTo('screen-city')">
+            <span class="input-label" style="font-weight: 500;">Город</span>
+            <div>
+                <span id="val-city" class="val">Москва</span>
+                <i class="chevron-right"></i>
+            </div>
+        </div>
+
+        <div class="selector-trigger" onclick="navigateTo('screen-metro')">
+            <span class="input-label" style="font-weight: 500;">Станция метро</span>
+            <div>
+                <span id="val-metro" class="val">Выберите станцию</span>
+                <i class="chevron-right"></i>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="validateAndNext()">Продолжить</button>
     </div>
 
 
-    <div id="step2" class="step-container hidden">
-        <h2>Дополнительно</h2>
-        <div class="subtitle">Добавь деталей, чтобы анкета выглядела круче и быстрее привлекла внимание!</div>
+    <div id="screen-step2" class="app-screen hidden">
+        <div class="screen-header">
+            <div class="back-btn" onclick="navigateTo('screen-step1')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </div>
+            <h2 class="screen-title" style="text-align: center; width: 100%; margin-right: 32px;">Дополнительно</h2>
+        </div>
+        <div class="subtitle" style="text-align: center;">Добавьте деталей, чтобы анкета быстрее привлекла внимание!</div>
 
-        <div class="input-group">
-            <label>Описание</label>
+        <div class="section-label">Описание</div>
+        <div class="textarea-block">
             <textarea id="description" rows="3" placeholder="Несколько интересных фактов о себе..."></textarea>
         </div>
 
-        <div class="input-group">
-            <label>Я хочу</label>
-            <select id="purpose">
-                <option value="" disabled selected>Укажите цель</option>
-                <option value="Серьезные отношения">Серьезные отношения</option>
-                <option value="Флирт / Секс на одну ночь">Флирт / Секс на одну ночь</option>
-                <option value="Регулярный секс">Регулярный sex</option>
-                <option value="Прогулки / Общение">Прогулки / Общение</option>
-                <option value="Посмотрим, куда зайдет">Посмотрим, куда зайдет</option>
-            </select>
+        <div class="section-label">Цель знакомства</div>
+        <div class="selector-trigger" onclick="navigateTo('screen-purpose')">
+            <span class="input-label" style="font-weight: 500;">Я хочу</span>
+            <div>
+                <span id="val-purpose" class="val">Не указано</span>
+                <i class="chevron-right"></i>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Деятельность</label>
-            <input type="text" id="activity" placeholder="Чем вы занимаетесь?">
+        <div class="section-label">О себе</div>
+        <div class="input-block">
+            <div class="input-row">
+                <span class="input-label">Деятельность</span>
+                <input type="text" id="activity" class="input-field" placeholder="Кем работаете / учитесь">
+            </div>
+            <div class="input-row">
+                <span class="input-label">Рост</span>
+                <input type="number" id="height" class="input-field" placeholder="см">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Рост (см)</label>
-            <select id="height"></select>
+        <div class="section-label">Социальные сети</div>
+        <div class="input-block">
+            <div class="input-row">
+                <span class="input-label">Instagram</span>
+                <input type="text" id="instagram" class="input-field" placeholder="username">
+            </div>
+            <div class="input-row">
+                <span class="input-label">ВКонтакте</span>
+                <input type="text" id="vk" class="input-field" placeholder="ссылка или ник">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Социальные сети</label>
-            <input type="text" id="instagram" placeholder="Ник в Instagram" style="margin-bottom: 8px;">
-            <input type="text" id="vk" placeholder="Ссылка или ник в VK">
+        <button class="btn-action" onclick="navigateTo('screen-step3')">Продолжить</button>
+    </div>
+
+
+    <div id="screen-step3" class="app-screen hidden">
+        <div class="screen-header">
+            <div class="back-btn" onclick="navigateTo('screen-step2')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </div>
+            <h2 class="screen-title" style="text-align: center; width: 100%; margin-right: 32px;">Медиа анкеты</h2>
+        </div>
+        <div class="subtitle" style="text-align: center;">Загрузите три фотографии с собой для создания профиля</div>
+
+        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+        <input type="file" id="video-input" accept="video/*" style="display: none;" onchange="handleVideoSelect(event)">
+
+        <div class="media-grid">
+            <div class="media-slot photo-slot" onclick="triggerPhotoUpload(0)"><span class="plus-icon" id="plus-0">+</span></div>
+            <div class="media-slot photo-slot" onclick="triggerPhotoUpload(1)"><span class="plus-icon" id="plus-1">+</span></div>
+            <div class="media-slot photo-slot" onclick="triggerPhotoUpload(2)"><span class="plus-icon" id="plus-2">+</span></div>
         </div>
 
-        <button class="btn-submit" onclick="submitForm()">Готово</button>
+        <div class="media-slot video-slot" onclick="triggerVideoUpload()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <span class="video-btn-text" id="video-status">Добавить видео приветствие</span>
+        </div>
+
+        <div id="photo-counter-btn" class="btn-indicator" onclick="finalSubmit()">Фотографии 0 / 3</div>
+    </div>
+
+
+    <div id="screen-city" class="app-screen hidden">
+        <div class="screen-header">
+            <div class="back-btn" onclick="navigateTo('screen-step1')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </div>
+            <h2 class="screen-title" style="margin-left: 12px;">Город</h2>
+        </div>
+        
+        <div class="section-label">Популярные города</div>
+        <div class="premium-card" id="city-list"></div>
+        
+        <div class="subtitle" style="text-align: center; font-size: 11px; margin-top: 10px;">
+            Мы работаем над расширением географии сервиса. Скоро SOD будет и в вашем городе.
+        </div>
+    </div>
+
+
+    <div id="screen-metro" class="app-screen hidden">
+        <div class="screen-header">
+            <div class="back-btn" onclick="navigateTo('screen-step1')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </div>
+            <h2 class="screen-title" style="margin-left: 12px;">Станция метро</h2>
+        </div>
+
+        <div class="search-container">
+            <div class="search-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <input type="text" id="metro-search" class="search-input" placeholder="Поиск" oninput="filterMetro()">
+        </div>
+
+        <div id="metro-wrapper"></div>
+    </div>
+
+
+    <div id="screen-purpose" class="app-screen hidden">
+        <div class="screen-header">
+            <div class="back-btn" onclick="navigateTo('screen-step2')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </div>
+            <h2 class="screen-title" style="margin-left: 12px;">Я хочу</h2>
+            <span class="clear-btn" onclick="clearPurpose()">Очистить</span>
+        </div>
+
+        <div class="premium-card">
+            <div class="purpose-item" onclick="selectPurpose('Дружба')">
+                <div class="purpose-icon-box">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <div class="purpose-details">
+                    <span class="purpose-title">Дружба</span>
+                    <span class="purpose-desc">Общение без романтики</span>
+                </div>
+            </div>
+            <div class="purpose-item" onclick="selectPurpose('Любовь')">
+                <div class="purpose-icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <div class="purpose-details">
+                    <span class="purpose-title">Любовь</span>
+                    <span class="purpose-desc">Найти человека для глубоких чувств и взаимной привязанности</span>
+                </div>
+            </div>
+            <div class="purpose-item" onclick="selectPurpose('Приключение')">
+                <div class="purpose-icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <div class="purpose-details">
+                    <span class="purpose-title">Приключение</span>
+                    <span class="purpose-desc">Поиск новых, ярких впечатлений и нестандартного общения</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем Web App на весь экран
+        tg.expand();
 
-        let selectedGender = "";
+        let appData = {
+            name: "", birthdate: "", gender: "", city: "Москва", metro: "",
+            description: "", purpose: "", activity: "", height: "", instagram: "", vk: "",
+            photos: [null, null, null], video: null
+        };
 
-        // Генерация списка роста от 140 до 220 см
-        const heightSelect = document.getElementById('height');
-        const defaultOption = document.createElement('option');
-        defaultOption.value = "";
-        defaultOption.text = "Выберите рост";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        heightSelect.appendChild(defaultOption);
+        const cities = ["Москва", "Санкт-Петербург", "Новосибирск", "Екатеринбург", "Казань", "Краснодар", "Нижний Новгород"];
+        const metroData = {
+            "АРБАТСКО-ПОКРОВСКАЯ": { color: "#0078bf", stations: ["Арбатская", "Бауманская", "Волоколамская", "Измайловская", "Киевская", "Крылатское", "Кунцевская", "Курская", "Митино", "Молодежная"] },
+            "СОКОЛЬНИЧЕСКАЯ": { color: "#ef161e", stations: ["Сокольники", "Охотный Ряд", "Парк Культуры", "Чистые пруды", "Лубянка"] },
+            "ЗАМОСКВОРЕЦКАЯ": { color: "#2db440", stations: ["Тверская", "Маяковская", "Павелецкая", "Белорусская"] }
+        };
 
-        for (let i = 140; i <= 220; i++) {
-            let opt = document.createElement('option');
-            opt.value = i;
-            opt.innerHTML = i + " см";
-            heightSelect.appendChild(opt);
+        let currentSlotIndex = 0;
+
+        function navigateTo(screenId) {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
-        // Выбор пола
-        function setGender(gender) {
-            selectedGender = gender;
+        function selectGender(gender) {
+            appData.gender = gender;
             document.getElementById('gender-male').classList.remove('active');
             document.getElementById('gender-female').classList.remove('active');
-            
-            if (gender === 'Мужской') {
-                document.getElementById('gender-male').classList.add('active');
-            } else {
-                document.getElementById('gender-female').classList.add('active');
+            if(gender === 'Мужской') document.getElementById('gender-male').classList.add('active');
+            if(gender === 'Женский') document.getElementById('gender-female').classList.add('active');
+        }
+
+        function renderCities() {
+            const container = document.getElementById('city-list');
+            container.innerHTML = "";
+            cities.forEach(city => {
+                const item = document.createElement('div');
+                item.className = "list-item";
+                item.onclick = () => {
+                    appData.city = city;
+                    document.getElementById('val-city').innerText = city;
+                    renderCities();
+                    navigateTo('screen-step1');
+                };
+                let checkmark = (city === appData.city) ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>` : '';
+                item.innerHTML = `<span class="list-item-text">${city}</span>${checkmark}`;
+                container.appendChild(item);
+            });
+        }
+
+        function renderMetro() {
+            const wrapper = document.getElementById('metro-wrapper');
+            wrapper.innerHTML = "";
+            for (const [lineName, lineInfo] of Object.entries(metroData)) {
+                const section = document.createElement('div');
+                section.className = "metro-group";
+                section.setAttribute('data-line', lineName);
+                section.innerHTML = `<div class="section-label">${lineName}</div>`;
+                
+                const card = document.createElement('div');
+                card.className = "premium-card";
+                
+                lineInfo.stations.forEach(station => {
+                    const item = document.createElement('div');
+                    item.className = "list-item metro-item";
+                    item.setAttribute('data-station', station.toLowerCase());
+                    item.onclick = () => {
+                        appData.metro = station;
+                        document.getElementById('val-metro').innerText = station;
+                        document.getElementById('val-metro').style.color = "var(--text-main)";
+                        navigateTo('screen-step1');
+                    };
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center;">
+                            <span class="metro-dot" style="background-color: ${lineInfo.color}"></span>
+                            <span class="list-item-text">${station}</span>
+                        </div>
+                    `;
+                    card.appendChild(item);
+                });
+                section.appendChild(card);
+                wrapper.appendChild(section);
             }
         }
 
-        // Переход на Шаг 2 с валидацией имени
-        function nextStep() {
+        function filterMetro() {
+            const query = document.getElementById('metro-search').value.toLowerCase().trim();
+            document.querySelectorAll('.metro-group').forEach(group => {
+                let hasVisible = false;
+                group.querySelectorAll('.metro-item').forEach(item => {
+                    if (item.getAttribute('data-station').includes(query)) {
+                        item.classList.remove('hidden');
+                        hasVisible = true;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+                group.style.display = hasVisible ? 'block' : 'none';
+            });
+        }
+
+        function selectPurpose(purpose) {
+            appData.purpose = purpose;
+            document.getElementById('val-purpose').innerText = purpose;
+            document.getElementById('val-purpose').style.color = "var(--text-main)";
+            navigateTo('screen-step2');
+        }
+
+        function clearPurpose() {
+            appData.purpose = "";
+            document.getElementById('val-purpose').innerText = "Не указано";
+            document.getElementById('val-purpose').style.color = "var(--text-secondary)";
+            navigateTo('screen-step2');
+        }
+
+        function validateAndNext() {
             const nameInput = document.getElementById('name');
             const nameError = document.getElementById('name-error');
-            const nameValue = nameInput.value.trim();
-
-            // Сброс ошибок
-            nameInput.classList.remove('error-border');
-            nameError.style.display = 'none';
-
-            // Валидация на пустоту
-            if (!nameValue) {
-                nameInput.classList.add('error-border');
+            const nameVal = nameInput.value.trim();
+            nameError.style.display = "none";
+            
+            if (!nameVal) {
                 nameError.innerText = "Поле имя обязательно для заполнения";
-                nameError.style.display = 'block';
+                nameError.style.display = "block";
                 return;
             }
-
-            // Валидация на цифры
-            if (/\d/.test(nameValue)) {
-                nameInput.classList.add('error-border');
+            if (/\d/.test(nameVal)) {
                 nameError.innerText = "Цифры вводить нельзя";
-                nameError.style.display = 'block';
+                nameError.style.display = "block";
                 return;
             }
-
-            // Переключение экранов
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
+            appData.name = nameVal;
+            appData.birthdate = document.getElementById('birthdate').value;
+            navigateTo('screen-step2');
         }
 
-        // Сбор всех данных и отправка в бот
-        function submitForm() {
-            const data = {
-                name: document.getElementById('name').value.trim(),
-                birthdate: document.getElementById('birthdate').value,
-                city: document.getElementById('city').value,
-                metro: document.getElementById('metro').value,
-                gender: selectedGender,
-                description: document.getElementById('description').value.trim(),
-                purpose: document.getElementById('purpose').value,
-                activity: document.getElementById('activity').value.trim(),
-                height: document.getElementById('height').value,
-                instagram: document.getElementById('instagram').value.trim(),
-                vk: document.getElementById('vk').value.trim()
-            };
+        function triggerPhotoUpload(index) {
+            currentSlotIndex = index;
+            document.getElementById('file-input').click();
+        }
 
-            // Отправляем JSON строку обратно в Python бот
-            tg.sendData(JSON.stringify(data));
+        function triggerVideoUpload() {
+            document.getElementById('video-input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const slot = document.querySelectorAll('.photo-slot')[currentSlotIndex];
+                const oldImg = slot.querySelector('img');
+                if (oldImg) oldImg.remove();
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                slot.appendChild(img);
+                
+                document.getElementById(`plus-${currentSlotIndex}`).style.display = 'none';
+                appData.photos[currentSlotIndex] = file.name; 
+                updatePhotoCounter();
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function handleVideoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            appData.video = file.name;
+            document.getElementById('video-status').innerHTML = "<span style='color:#34c759'>Видеоприветствие добавлено ✓</span>";
+        }
+
+        function updatePhotoCounter() {
+            const count = appData.photos.filter(p => p !== null).length;
+            const btn = document.getElementById('photo-counter-btn');
+            btn.innerText = `Фотографии ${count} / 3`;
+            if (count >= 3) {
+                btn.className = "btn-action ready";
+            } else {
+                btn.className = "btn-indicator";
+            }
+        }
+
+        function finalSubmit() {
+            const count = appData.photos.filter(p => p !== null).length;
+            if (count < 3) return;
+
+            appData.description = document.getElementById('description').value.trim();
+            appData.activity = document.getElementById('activity').value.trim();
+            appData.height = document.getElementById('height').value;
+            appData.instagram = document.getElementById('instagram').value.trim();
+            appData.vk = document.getElementById('vk').value.trim();
+
+            tg.sendData(JSON.stringify(appData));
             tg.close();
         }
+
+        renderCities();
+        renderMetro();
     </script>
 </body>
 </html>
