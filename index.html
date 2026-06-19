@@ -3,83 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOD - Создать профиль</title>
+    <title>SOD Profile</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 20px; }
+        :root { --bg: #000; --card: #1c1c1e; --text: #fff; --error: #ff453a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 400px; margin: 0 auto; }
         
-        /* Исправленные поля */
-        .input-group { background-color: #121417; border: 1px solid #1c1f24; border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        input[type="text"], input[type="date"], select { background: transparent; border: none; color: #ffffff; outline: none; font-size: 16px; width: 100%; }
+        /* Стили полей как на фото */
+        .input-wrapper { margin-bottom: 20px; }
+        .label { font-size: 14px; margin-bottom: 8px; color: #aaa; }
+        .input-box { width: 100%; padding: 15px; border-radius: 12px; background: var(--card); border: 1px solid #333; color: var(--text); font-size: 16px; box-sizing: border-box; }
+        .error-msg { color: var(--error); font-size: 12px; margin-top: 5px; display: none; }
         
-        /* Кнопка */
-        .submit-btn { width: 100%; background-color: #ffffff; color: #000000; border-radius: 28px; padding: 16px; font-weight: bold; border: none; margin-top: 20px; }
+        .submit-btn { width: 100%; padding: 16px; background: #fff; color: #000; border-radius: 12px; font-weight: bold; border: none; margin-top: 30px; }
 
         /* Крутилка роста */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; padding: 20px; z-index: 100; }
-        .wheel-container { height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; margin: 40px 0; }
-        .wheel-item { height: 50px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #555; scroll-snap-align: center; }
-        .wheel-item.selected { color: #fff; font-size: 28px; font-weight: bold; }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; display:none; flex-direction:column; z-index:100; }
+        .wheel-container { height: 200px; overflow: scroll; scroll-snap-type: y mandatory; text-align: center; margin: auto; }
+        .wheel-item { height: 50px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #444; scroll-snap-align: center; }
+        .wheel-item.selected { color: #fff; font-size: 26px; font-weight: bold; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>Создать профиль</h2>
-    
-    <!-- Имя -->
-    <div class="input-group"><input type="text" id="name" placeholder="Ваше имя"></div>
-    
-    <!-- Пол -->
-    <div class="input-group">
-        <select id="gender">
-            <option value="" disabled selected>Выберите пол</option>
-            <option value="male">Мужской</option>
-            <option value="female">Женский</option>
-        </select>
+    <div class="input-wrapper">
+        <div class="label">Имя*</div>
+        <input type="text" id="name" class="input-box" placeholder="Введите имя">
+        <div id="name-error" class="error-msg">Поле обязательное</div>
     </div>
     
-    <!-- Дата рождения -->
-    <div class="input-group"><input type="date" id="birthdate"></div>
-    
-    <!-- Рост (открывает крутилку) -->
-    <div class="input-group" onclick="document.getElementById('height-overlay').style.display='flex'">
-        <span id="height-val">Рост</span>
+    <div class="input-wrapper" onclick="document.getElementById('height-overlay').style.display='flex'">
+        <div class="label">Рост</div>
+        <div class="input-box" id="height-display">Выберите рост...</div>
     </div>
 
-    <button class="submit-btn" onclick="submitData()">Продолжить</button>
+    <button class="submit-btn" onclick="validate()">Продолжить</button>
 </div>
 
-<!-- Крутилка роста -->
 <div id="height-overlay" class="overlay">
-    <div onclick="saveHeight()">Сохранить</div>
-    <div class="wheel-container" id="wheel" onscroll="handleScroll()">
+    <div class="wheel-container" id="wheel" onscroll="onScroll()">
         <div id="wheel-inner"></div>
     </div>
+    <div style="padding:20px"><button class="submit-btn" onclick="saveH()">Готово</button></div>
 </div>
 
 <script>
-    // Генерация крутилки
     const inner = document.getElementById('wheel-inner');
-    for (let i = 140; i <= 210; i++) {
-        inner.innerHTML += `<div class="wheel-item" id="h-${i}">${i} см</div>`;
-    }
-
-    function handleScroll() {
-        const val = Math.round(document.getElementById('wheel').scrollTop / 50) + 140;
-        document.querySelectorAll('.wheel-item').forEach(el => el.classList.remove('selected'));
+    for(let i=140; i<=210; i++) inner.innerHTML += `<div class="wheel-item" id="h-${i}">${i} см</div>`;
+    
+    function onScroll() {
+        let val = Math.round(document.getElementById('wheel').scrollTop/50) + 140;
+        document.querySelectorAll('.wheel-item').forEach(el=>el.classList.remove('selected'));
         document.getElementById(`h-${val}`)?.classList.add('selected');
-        window.currentH = val;
+        window.tempH = val;
     }
-
-    function saveHeight() {
-        document.getElementById('height-val').innerText = window.currentH + " см";
+    
+    function saveH() {
+        document.getElementById('height-display').innerText = window.tempH + " см";
         document.getElementById('height-overlay').style.display = 'none';
     }
 
-    function submitData() {
-        // Логика отправки данных...
-        alert("Профиль сохранен!");
+    function validate() {
+        if(!document.getElementById('name').value) {
+            document.getElementById('name-error').style.display = 'block';
+            document.getElementById('name').style.borderColor = 'var(--error)';
+        } else {
+            alert('Данные отправлены!');
+        }
     }
 </script>
 </body>
