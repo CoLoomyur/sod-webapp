@@ -6,104 +6,80 @@
     <title>SOD - Создать профиль</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .neon-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; height: 320px; background: transparent; border-radius: 50%; box-shadow: 0 0 140px 60px rgba(255, 255, 255, 0.05); z-index: -1; }
-        .container { width: 100%; max-width: 380px; }
-        .screen { display: none; } .screen.active { display: block; }
-        h2 { font-size: 24px; text-align: center; margin: 20px 0; }
-        .input-group { background-color: #121417; border: 1px solid #1c1f24; border-radius: 14px; padding: 16px; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; }
-        .val-right { text-align: right; color: #ffffff; font-size: 16px; background: transparent; border: none; outline: none; width: 60%; margin-left: auto; }
-        .submit-btn { width: 100%; background-color: #ffffff; color: #000000; border-radius: 28px; padding: 16px; font-weight: bold; cursor: pointer; border: none; }
+        body { font-family: -apple-system, sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; }
         
-        /* Стили оверлеев и крутилки */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 100; display: none; flex-direction: column; padding: 16px; box-sizing: border-box; }
-        .wheel-container { position: relative; height: 280px; overflow-y: scroll; scroll-snap-type: y mandatory; margin: 20px 0; }
-        .wheel-item { height: 56px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #4a4f54; scroll-snap-align: center; transition: all 0.2s; }
-        .wheel-item.selected { color: #fff; font-size: 26px; font-weight: 800; }
-        .wheel-mask { position: absolute; top: 112px; left: 0; width: 100%; height: 56px; border-top: 1px solid #333; border-bottom: 1px solid #333; pointer-events: none; }
-        .list-item { padding: 16px; border-bottom: 1px solid #121417; display: flex; align-items: center; gap: 12px; }
-        .metro-badge { width: 12px; height: 12px; border-radius: 50%; }
+        /* Исправленные поля */
+        .input-group { background-color: #121417; border: 1px solid #1c1f24; border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        input[type="text"], input[type="date"], select { background: transparent; border: none; color: #ffffff; outline: none; font-size: 16px; width: 100%; }
+        
+        /* Кнопка */
+        .submit-btn { width: 100%; background-color: #ffffff; color: #000000; border-radius: 28px; padding: 16px; font-weight: bold; border: none; margin-top: 20px; }
+
+        /* Крутилка роста */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; padding: 20px; z-index: 100; }
+        .wheel-container { height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; margin: 40px 0; }
+        .wheel-item { height: 50px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #555; scroll-snap-align: center; }
+        .wheel-item.selected { color: #fff; font-size: 28px; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="neon-glow"></div>
 <div class="container">
-    <div id="screen-main" class="screen active">
-        <h2>Создать профиль</h2>
-        <div class="input-group" id="name-group"><input type="text" id="name" placeholder="Ваше имя"></div>
-        <div class="input-group" onclick="openOverlay('city-overlay')">Город<input type="text" id="city" class="val-right" placeholder="Выбрать" readonly></div>
-        <div class="input-group" onclick="openOverlay('metro-overlay')">Метро<input type="text" id="metro" class="val-right" placeholder="Выбрать" readonly></div>
-        <button class="submit-btn" onclick="goToNextScreen()">Продолжить</button>
+    <h2>Создать профиль</h2>
+    
+    <!-- Имя -->
+    <div class="input-group"><input type="text" id="name" placeholder="Ваше имя"></div>
+    
+    <!-- Пол -->
+    <div class="input-group">
+        <select id="gender">
+            <option value="" disabled selected>Выберите пол</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+        </select>
+    </div>
+    
+    <!-- Дата рождения -->
+    <div class="input-group"><input type="date" id="birthdate"></div>
+    
+    <!-- Рост (открывает крутилку) -->
+    <div class="input-group" onclick="document.getElementById('height-overlay').style.display='flex'">
+        <span id="height-val">Рост</span>
     </div>
 
-    <div id="screen-additional" class="screen">
-        <h2>Дополнительно</h2>
-        <div class="input-group" onclick="openOverlay('height-overlay')">Рост<input type="text" id="height" class="val-right" placeholder="Выбрать" readonly></div>
-        <button class="submit-btn" onclick="sendAllDataToBot()">Готово</button>
-    </div>
+    <button class="submit-btn" onclick="submitData()">Продолжить</button>
 </div>
 
-<div id="city-overlay" class="overlay">
-    <div onclick="closeOverlay('city-overlay')">✕ Закрыть</div>
-    <div class="list-container">
-        <div class="list-item" onclick="setCity('Москва')">📍 Москва</div>
-        <div class="list-item" onclick="setCity('Питер')">🏛️ Питер</div>
-    </div>
-</div>
-
-<div id="metro-overlay" class="overlay">
-    <div onclick="closeOverlay('metro-overlay')">✕ Закрыть</div>
-    <div class="list-container" id="metro-list"></div>
-</div>
-
+<!-- Крутилка роста -->
 <div id="height-overlay" class="overlay">
-    <div class="overlay-header">Рост <span onclick="saveHeightFromWheel()">Сохранить</span></div>
-    <div class="wheel-mask"></div>
-    <div class="wheel-container" id="height-wheel" onscroll="handleWheelScroll()">
-        <div class="wheel-scroller" id="height-scroller"></div>
+    <div onclick="saveHeight()">Сохранить</div>
+    <div class="wheel-container" id="wheel" onscroll="handleScroll()">
+        <div id="wheel-inner"></div>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    // Генерация роста (крутилка)
-    const heightScroller = document.getElementById('height-scroller');
-    for (let h = 140; h <= 210; h++) {
-        let div = document.createElement('div');
-        div.className = 'wheel-item';
-        div.id = `h-${h}`;
-        div.innerText = `${h} см`;
-        heightScroller.appendChild(div);
+    // Генерация крутилки
+    const inner = document.getElementById('wheel-inner');
+    for (let i = 140; i <= 210; i++) {
+        inner.innerHTML += `<div class="wheel-item" id="h-${i}">${i} см</div>`;
     }
 
-    function handleWheelScroll() {
-        const container = document.getElementById('height-wheel');
-        let index = Math.round(container.scrollTop / 56);
-        let val = 140 + index;
+    function handleScroll() {
+        const val = Math.round(document.getElementById('wheel').scrollTop / 50) + 140;
         document.querySelectorAll('.wheel-item').forEach(el => el.classList.remove('selected'));
         document.getElementById(`h-${val}`)?.classList.add('selected');
-        window.selectedHeight = val;
+        window.currentH = val;
     }
 
-    function saveHeightFromWheel() {
-        document.getElementById('height').value = window.selectedHeight + " см";
-        closeOverlay('height-overlay');
+    function saveHeight() {
+        document.getElementById('height-val').innerText = window.currentH + " см";
+        document.getElementById('height-overlay').style.display = 'none';
     }
 
-    function openOverlay(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
-    function goToNextScreen() { document.getElementById('screen-main').classList.remove('active'); document.getElementById('screen-additional').classList.add('active'); }
-    function setCity(c) { document.getElementById('city').value = c; closeOverlay('city-overlay'); }
-    
-    function sendAllDataToBot() {
-        tg.sendData(JSON.stringify({
-            name: document.getElementById('name').value,
-            city: document.getElementById('city').value,
-            height: document.getElementById('height').value
-        }));
-        tg.close();
+    function submitData() {
+        // Логика отправки данных...
+        alert("Профиль сохранен!");
     }
 </script>
 </body>
